@@ -1,7 +1,7 @@
 # Here we go
 
 import cv2
-
+import sys
 
 def shwo(im):
 	cv2.imshow('image',im)
@@ -25,6 +25,31 @@ def adjCheck(val,l):
 			return True
 	return False
 
+def HellDriver(im):
+
+	# for (x,y),pval in im:
+	# for (x,y) in (range(0,im.shape[0]),range(0,im.shape[1])):
+	# 	print('howdy')
+		# recursionHell(x,y,im)
+	for x in range(0,im.shape[0]):
+		for y in range(0,im.shape[1]):
+			recursionHell(x,y,im)
+
+
+	return(im)
+
+def recursionHell(xi,yi,im):
+
+	if xi < 0 or yi < 0 or xi == im.shape[0] or yi == im.shape[1]:
+		return
+	if im[xi,yi] == 0:
+		return
+
+	im[xi,yi] = 0
+	for xm,ym in [[0,-1],[0,1],[1,0],[-1,0]]:
+		recursionHell(xi+xm,yi+ym,im)
+
+
 def sequester(im):
 	hitlist = []
 	hl2 = []
@@ -33,6 +58,9 @@ def sequester(im):
 	f1 = False
 
 	hitlist.append([])
+
+
+
 
 	for (x,y),pval in im:
 		if y == 0 or pval == 0:
@@ -48,8 +76,9 @@ def sequester(im):
 						list(set().union(set(hits1),set(hits2)))
 
 if __name__ == '__main__':
-	tim = imin()
-
+	# sys.setrecursionlimit(40000)
+	im = imin()
+	tim = HellDriver(im)
 
 
 
