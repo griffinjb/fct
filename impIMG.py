@@ -31,14 +31,19 @@ def HellDriver(im):
 	# for (x,y) in (range(0,im.shape[0]),range(0,im.shape[1])):
 	# 	print('howdy')
 		# recursionHell(x,y,im)
+
+	hitlist = []
+
 	for x in range(0,im.shape[0]):
 		for y in range(0,im.shape[1]):
-			recursionHell(x,y,im)
+			if im[x,y] != 0:
+				hits = []
+				recursionHell(x,y,im,hits)
+				hitlist.append(hits)
 
+	return(hitlist)
 
-	return(im)
-
-def recursionHell(xi,yi,im):
+def recursionHell(xi,yi,im,hits):
 
 	if xi < 0 or yi < 0 or xi == im.shape[0] or yi == im.shape[1]:
 		return
@@ -46,8 +51,9 @@ def recursionHell(xi,yi,im):
 		return
 
 	im[xi,yi] = 0
+	hits.append([xi,yi])
 	for xm,ym in [[0,-1],[0,1],[1,0],[-1,0]]:
-		recursionHell(xi+xm,yi+ym,im)
+		recursionHell(xi+xm,yi+ym,im,hits)
 
 
 def sequester(im):
