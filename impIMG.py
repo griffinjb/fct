@@ -3,7 +3,7 @@
 import cv2
 import sys
 
-def shwo(im):
+def show(im):
 	cv2.imshow('image',im)
 	cv2.waitKey(0)
 
@@ -17,13 +17,6 @@ def imin():
 
 	return(tim)
 	# cv2.imwrite('ds.jpg',tim)	
-
-def adjCheck(val,l):
-
-	for mod1,mod2 in [[0,-1],[0,1],[1,0],[-1,0]]:
-		if [val[0]+mod1,val[1]+mod2] in l:
-			return True
-	return False
 
 def HellDriver(im):
 
@@ -55,39 +48,28 @@ def recursionHell(xi,yi,im,hits):
 	for xm,ym in [[0,-1],[0,1],[1,0],[-1,0]]:
 		recursionHell(xi+xm,yi+ym,im,hits)
 
+def paint_it(patches,im):
+	pallet = [25,50,75,100,125,150,175,200]
+	i = 0
 
-def sequester(im):
-	hitlist = []
-	hl2 = []
-	hits = []
+	for patch in patches:
+		i = i + 1
+		if i == 8:
+			i = 0
+		for pix in patch:
+			im[pix[0],pix[1]] = pallet[i]
 
-	f1 = False
-
-	hitlist.append([])
-
-
+	return(im)
 
 
-	for (x,y),pval in im:
-		if y == 0 or pval == 0:
-			hitlist.append([])
-		if pval != 0:
-			hitlist[len(hitlist)-1].append([x,y])
-
-	for hits1 in hitlist:
-		for hits2 in hitlist:
-			if hits1 != hits2:
-				for hit in hits1:
-					if adjCheck(hit,hits2):
-						list(set().union(set(hits1),set(hits2)))
 
 if __name__ == '__main__':
 	# sys.setrecursionlimit(40000)
 	im = imin()
-	tim = HellDriver(im)
-
-
-
+	patches = HellDriver(im)
+	pim = paint_it(patches,im)
+	# show(pim)
+	cv2.imwrite('coloredin.jpg',pim)
 
 
 # index
