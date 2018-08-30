@@ -2,6 +2,7 @@
 
 import cv2
 import sys
+import random
 
 def show(im):
 	cv2.imshow('image',im)
@@ -9,7 +10,7 @@ def show(im):
 
 def imin():
 
-	im = cv2.imread("bnw.jpg")
+	im = cv2.imread("grid.png")
 	
 	gim = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
 
@@ -62,36 +63,58 @@ def paint_it(patches,im):
 	return(im)
 
 class swampland:
-	def __init__(self,porg):
+	def __init__(self,porg,hsvIMIN):
 		self.coordsets = []
 		self.baseHSV_Sets = []
+		satBase = 255
+		valBase = 125
 		base_color_pool = [
-			[0/360*179,0,255],
-			[55/360*179,0,255],
-			[84/360*179,0,255],
-			[173/360*179,0,255],
-			[270/360*179,0,255],
-			[281/360*179,0,255],
-			[298/360*179,0,255],
-			[325/360*179,0,255],
-			[360/360*179,0,255],
-			[200/360*179,0,255]
+			[  int(0/360*179),satBase,valBase],
+			[ int(55/360*179),satBase,valBase],
+			[ int(84/360*179),satBase,valBase],
+			[int(173/360*179),satBase,valBase],
+			[int(270/360*179),satBase,valBase],
+			[int(281/360*179),satBase,valBase],
+			[int(298/360*179),satBase,valBase],
+			[int(325/360*179),satBase,valBase],
+			[int(360/360*179),satBase,valBase],
+			[int(200/360*179),satBase,valBase]
+			# [int(360),0,125]
 		]
 		i = 0
 		for pog in porg:
 			if i == len(base_color_pool): i = 0
 			self.coordsets.append(pog)
-			self.baseHSV_Sets.append(base_color_pool[i])
-			# self.baseHSV_Sets.append(base_color_pool[random.randint(0,len(base_color_pool)-1)])
+			# self.baseHSV_Sets.append(base_color_pool[i])
+			self.baseHSV_Sets.append(base_color_pool[random.randint(0,len(base_color_pool)-1)])
+			i = i + 1
+		self.imOUT = hsvIMIN	
+
+		self.hsvPaintIT()
+
+
+	def hsvPaintIT(self):
+		self.imOUT
+		for i in range(0,len(self.coordsets)):
+			for pix in self.coordsets[i]:
+				# print(self.baseHSV_Sets[i])
+				self.imOUT[pix[0],pix[1]] = self.baseHSV_Sets[i]
+
+
+
+
 if __name__ == '__main__':
 	# sys.setrecursionlimit(40000)
 	im = imin()
 	patches = HellDriver(im)
 	pim = paint_it(patches,im)
 	# show(pim)
-	cv2.imwrite('coloredin.jpg',pim)
-
-
+	cv2.imwrite('coloredin.png',pim)
+	cpim = cv2.cvtColor(pim,cv2.COLOR_GRAY2BGR)
+	hpim = cv2.cvtColor(cpim,cv2.COLOR_BGR2HSV)
+	# cv2.imwrite('hsvim.png',cpim)
+	swamptreats = swampland(patches,hpim)
+	cv2.imwrite('hodor.png',cv2.cvtColor(swamptreats.imOUT,cv2.COLOR_HSV2BGR))
 # index
 # append
 # if black or 0, newlist
