@@ -61,8 +61,28 @@ def paint_it(patches,im):
 
 	return(im)
 
-
-
+class swampland:
+	def __init__(self,porg):
+		self.coordsets = []
+		self.baseHSV_Sets = []
+		base_color_pool = [
+			[0/360*179,0,255],
+			[55/360*179,0,255],
+			[84/360*179,0,255],
+			[173/360*179,0,255],
+			[270/360*179,0,255],
+			[281/360*179,0,255],
+			[298/360*179,0,255],
+			[325/360*179,0,255],
+			[360/360*179,0,255],
+			[200/360*179,0,255]
+		]
+		i = 0
+		for pog in porg:
+			if i == len(base_color_pool): i = 0
+			self.coordsets.append(pog)
+			self.baseHSV_Sets.append(base_color_pool[i])
+			# self.baseHSV_Sets.append(base_color_pool[random.randint(0,len(base_color_pool)-1)])
 if __name__ == '__main__':
 	# sys.setrecursionlimit(40000)
 	im = imin()
