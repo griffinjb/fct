@@ -32,10 +32,34 @@ def HellDriver(im):
 		for y in range(0,im.shape[1]):
 			if im[x,y] != 0:
 				hits = []
-				recursionHell(x,y,im,hits)
+				queue = []
+				recursionHell(x,y,im,hits,queue)
 				hitlist.append(hits)
 
 	return(hitlist)
+
+def endlessDriver(im):
+	hitlist = []	
+	for x in range(0,im.shape[0]):
+		for y in range(0,im.shape[1]):
+			hits = []
+			q = [[x,y]]
+			for coords in q:
+				endlessHell(coords[0],coords[1],im,hits,q)
+			if hits: hitlist.append(hits)
+
+	return(hitlist)
+
+def endlessHell(xi,yi,im,hits,queue):
+	if xi < 0 or yi < 0 or xi == im.shape[0] or yi == im.shape[1]:
+		return
+	if im[xi,yi] == 0:
+		return
+	hits.append([xi,yi])
+	im[xi,yi] = 0
+	for xm,ym in [[0,-1],[0,1],[1,0],[-1,0]]:
+		queue.append([xi+xm,yi+ym])
+
 
 def recursionHell(xi,yi,im,hits):
 
@@ -99,8 +123,8 @@ class swampland:
 			self.imOUT[pix[0],pix[1]][2] = val
 
 
-	def write(self):
-		cv2.imwrite('hodor.png',cv2.cvtColor(self.imOUT,cv2.COLOR_HSV2BGR))
+	def write(self,fn):
+		cv2.imwrite(fn,cv2.cvtColor(self.imOUT,cv2.COLOR_HSV2BGR))
 
 	def hsvPaintIT(self):
 		for i in range(0,len(self.coordsets)):
@@ -111,7 +135,8 @@ class swampland:
 def initObj(fn):
 	# sys.setrecursionlimit(40000)
 	im = imin(fn)
-	patches = HellDriver(im)
+	patches = endlessDriver(im)
+	# patches = HellDriver(im)
 	pim = paint_it(patches,im)
 	# show(pim)
 	# cv2.imwrite('coloredin.png',pim)
@@ -119,15 +144,15 @@ def initObj(fn):
 	hpim = cv2.cvtColor(cpim,cv2.COLOR_BGR2HSV)
 	# cv2.imwrite('hsvim.png',cpim)
 	swamptreats = swampland(patches,hpim)
-	swamptreats.write()
+	swamptreats.write('powa.png')
 	return(swamptreats)
 
 if __name__ == '__main__':
-	swampy = initObj('grid.png')
+	swampy = initObj('flowa.jpg')
 	i = 0
 	while True:
 		for i in range(0,swampy.getLen()):
 			swampy.modVAL(i,random.randint(0,255))
-		swampy.write()
+		swampy.write('powa.png')
 		time.sleep(1)
 
