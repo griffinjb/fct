@@ -6,7 +6,7 @@ import random
 
 def show(im):
 	cv2.imshow('image',im)
-	cv2.waitKey(0)
+	cv2.waitKey(1)
 
 def imin(fn):
 
@@ -74,7 +74,8 @@ def recursionHell(xi,yi,im,hits):
 		recursionHell(xi+xm,yi+ym,im,hits)
 
 def paint_it(patches,im):
-	pallet = [25,50,75,100,125,150,175,200]
+	# pallet = [25,50,75,100,125,150,175,200]
+	pallet = [i for i in range(0,360)]
 	i = 0
 
 	for patch in patches:
@@ -148,11 +149,12 @@ def initObj(fn):
 	return(swamptreats)
 
 if __name__ == '__main__':
-	swampy = initObj('flowa.jpg')
+	swampy = initObj('panda.jpg')
 	i = 0
 	while True:
 		for i in range(0,swampy.getLen()):
 			swampy.modVAL(i,random.randint(0,255))
-		swampy.write('powa.png')
-		time.sleep(1)
+			# swampy.write('powa.png')
+		show(cv2.cvtColor(swampy.imOUT,cv2.COLOR_HSV2BGR))
+			# time.sleep(1)
 
