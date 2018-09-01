@@ -3,6 +3,8 @@ import time
 import cv2
 import sys
 import random
+import json
+import numpy as np
 
 def show(im):
 	cv2.imshow('image',im)
@@ -20,11 +22,6 @@ def imin(fn):
 	# cv2.imwrite('ds.jpg',tim)	
 
 def HellDriver(im):
-
-	# for (x,y),pval in im:
-	# for (x,y) in (range(0,im.shape[0]),range(0,im.shape[1])):
-	# 	print('howdy')
-		# recursionHell(x,y,im)
 
 	hitlist = []
 
@@ -91,6 +88,7 @@ class swampland:
 	def __init__(self,porg,hsvIMIN):
 		self.coordsets = []
 		self.baseHSV_Sets = []
+
 		satBase = 255
 		valBase = 125
 		# HueList = [0,55,84,173,200,270,281,298,325,360]
@@ -148,13 +146,65 @@ def initObj(fn):
 	swamptreats.write('powa.png')
 	return(swamptreats)
 
-if __name__ == '__main__':
-	swampy = initObj('panda.jpg')
-	i = 0
-	while True:
+def randGen(swampy):
+	valCache = [0 for i in range(0,swampy.getLen())]
+	v2alCache = [0 for i in range(0,swampy.getLen())]
+
+	sins = np.sin(np.array([i for i in range(0,100)])/10)
+
+	for j in range(0,100):
+		print(j)
 		for i in range(0,swampy.getLen()):
-			swampy.modVAL(i,random.randint(0,255))
+			if j%10 == 0:
+				v2alCache[i] = valCache[i]
+				valCache[i] = random.randint(0,255)
+			# swampy.modVAL(i,sins[j]*255)
+			swampy.modVAL(i,v2alCache[i] + (j%10)/10*(v2alCache[i]-valCache[i]))
+			# swampy.modVAL(i,random.randint(0,255))
+
 			# swampy.write('powa.png')
 		show(cv2.cvtColor(swampy.imOUT,cv2.COLOR_HSV2BGR))
-			# time.sleep(1)
+		movie.append(cv2.cvtColor(swampy.imOUT,cv2.COLOR_HSV2BGR))
+	return(movie)
 
+
+def impAudio(fn):
+	
+
+
+if __name__ == '__main__':
+
+	loadJ = False
+
+	fin = 'panda.jpg'
+	jout = 'sonicJet.json'
+	fout = 'lit.png'
+
+
+	if not loadJ:
+
+		swampy = initObj('panda.jpg')
+		i = 0
+		movie = []
+
+		aud = impAudio(fn)
+
+		# movie = randGen(swampy)
+
+		height,width,layers = movie[1].shape
+		fourcc = cv2.VideoWriter_fourcc(*'XVID')
+		video = cv2.VideoWriter('video.avi',fourcc,20,(width,height))
+
+		for frame in movie:
+			video.write(frame)
+
+		cv2.destroyAllWindows()
+		video.release()
+		# with open(jout,'wt') as fout:
+		# 	json.dump(movie, fout, sort_keys=True, indent=4, separators=(',',': '))
+
+	else:
+
+		with open(jout,'r') as fp:
+			movie = json.load(fp)
+			movie = np.array(movie)
