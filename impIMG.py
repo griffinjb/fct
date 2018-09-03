@@ -176,15 +176,19 @@ def writeThatVideoShit(movie):
 def getThresh(im):
 	gim = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
 	buf = 0
-	yo  = 0
+	yo  = 127
+	boat = False
 	while True:
 		buf = yo
-		yo = input()
+		if boat:
+			yo = input()
+
 		if yo == 'q':
 			return(buf)
 		else: yo = int(yo)
 		(t1,tim) = cv2.threshold(gim,yo,255,cv2.THRESH_BINARY)
 		show(tim)
+		boat = True
 
 class swampland:
 	def __init__(self,porg,hsvIMIN,palIM):
