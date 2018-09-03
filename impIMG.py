@@ -8,6 +8,7 @@ import numpy as np
 import scipy
 from scipy.fftpack import fft, fftfreq
 from scipy.io import wavfile
+from ts import *
 
 def show(im):
 	cv2.imshow('image',im)
@@ -108,6 +109,27 @@ def initObj(fn,pfn):
 	swamptreats.write('powa.png')
 	return(swamptreats)
 
+def audGen(swampy,fn):
+	bound = [60,250,500,2000,4000,6000,20000]
+
+	f,s,Sxx = getSxx(fn)
+
+	sums = parse(bound,Sxx,f,s)
+
+	nsums = HueNorm(sums)
+
+	for j in range(1000,1100):
+
+		for i in range(0,swampy.getLen()):
+
+			swampy.modVAL(i,nsums[3][j])
+			print(nsums[3][j])
+
+		show(cv2.cvtColor(swampy.imOUT,cv2.COLOR_HSV2BGR))
+		movie.append(cv2.cvtColor(swampy.imOUT,cv2.COLOR_HSV2BGR))
+	return(movie)
+
+
 def randGen(swampy):
 	valCache = [0 for i in range(0,swampy.getLen())]
 	v2alCache = [0 for i in range(0,swampy.getLen())]
@@ -130,20 +152,13 @@ def randGen(swampy):
 	return(movie)
 
 def impAudio(fn):
-	fs,aud = wavfile.read(fn)
-	chnCNT = len(aud.shape)
+	fn = 'toffee.wav'
+	Fs,x = wavfile.read(fn)
+	chnCNT = len(x.shape)
 	if chnCNT == 2:
-		aud = aud.sum(axis=1)/2
-	l_aud = aud.shape[0]
-	secs = l_aud/float(fs)
-	Ts = 1.0/fs
-	t = scipy.arange(0,secs,Ts)
-	FFT = abs(fft(aud))
-	FFT_side = FFT[range(l_aud/2)]
-	freqs = fftfreq(aud.size,t[1]-t[0])
-	fft_freqs = np.array(freqs)
-	freqs_side = freqs[range(l_aud/2)]
-	fft_freqs_side = np.array(freqs_side)
+		x = x.sum(axis=1)/2
+
+	f, t, Sxx = signal.spectrogram(x,Fs)
 
 def hsExtract(im):
 	hues = []
@@ -165,7 +180,7 @@ def hueExtract(im):
 def writeThatVideoShit(movie):
 	height,width,layers = movie[1].shape
 	fourcc = cv2.VideoWriter_fourcc(*'XVID')
-	video = cv2.VideoWriter('video.avi',fourcc,20,(width,height))
+	video = cv2.VideoWriter('video.avi',fourcc,200,(width,height))
 
 	for frame in movie:
 		video.write(frame)
@@ -252,6 +267,8 @@ if __name__ == '__main__':
 
 	# aud = impAudio(ain)
 
-	movie = randGen(swampy)
+	# movie = randGen(swampy)
+	movie = audGen(swampy,ain)
+
 
 	writeThatVideoShit(movie)
