@@ -9,6 +9,7 @@ import scipy
 from scipy.fftpack import fft, fftfreq
 from scipy.io import wavfile
 from ts import *
+from random import shuffle
 
 def show(im):
 	cv2.imshow('image',im)
@@ -114,21 +115,40 @@ def audGen(swampy,fn):
 
 	f,s,Sxx = getSxx(fn)
 
+	# delta t = .005079365079365017
+
+	ctrLim = swampy.getLen()/6
+	ctr = 1
+	r = []
+	reg = []
+	idxs = [i for i in range(swampy.getLen())]
+	shuffle(idxs)
+	# idxs = shuffle(idxs)
+	for i in range(len(idxs)):
+		if i < ctrLim*ctr:
+			r.append(idxs[i])
+		else:
+			reg.append(r)
+			r = []
+			ctr = ctr+1
+
 	sums = parse(bound,Sxx,f,s)
 
 	nsums = HueNorm(sums)
 
-	for j in range(1000,1100):
-
-		for i in range(0,swampy.getLen()):
-
-			swampy.modVAL(i,nsums[3][j])
-			print(nsums[3][j])
+	for j in range(len(nsums[0])):
+	# for j in range(0,4000):
+		# for i in range(swampy.getLen()):
+		for k in range(len(reg)):
+			for i in reg[k]:
+				# for k in range(len(nsums)):
+				swampy.modVAL(i,nsums[k][j])
+				print(str(i))
 
 		show(cv2.cvtColor(swampy.imOUT,cv2.COLOR_HSV2BGR))
-		movie.append(cv2.cvtColor(swampy.imOUT,cv2.COLOR_HSV2BGR))
-	return(movie)
-
+		yield(cv2.cvtColor(swampy.imOUT,cv2.COLOR_HSV2BGR))
+		# movie.append(cv2.cvtColor(swampy.imOUT,cv2.COLOR_HSV2BGR))
+	# return(movie)
 
 def randGen(swampy):
 	valCache = [0 for i in range(0,swampy.getLen())]
@@ -177,13 +197,29 @@ def hueExtract(im):
 	# hud = list(set(hues))
 	return hues
 
-def writeThatVideoShit(movie):
-	height,width,layers = movie[1].shape
-	fourcc = cv2.VideoWriter_fourcc(*'XVID')
-	video = cv2.VideoWriter('video.avi',fourcc,200,(width,height))
+def writeThatVideoShit(movie,init):
 
 	for frame in movie:
 		video.write(frame)
+
+def genAudWrite(swampy,ain,fin):
+	im = cv2.imread(fin)
+
+	height,width,layers = im.shape
+	fourcc = cv2.VideoWriter_fourcc(*'XVID')
+
+	video = cv2.VideoWriter('video.avi',fourcc,196.875,(width,height))
+	frameBuffer = []
+
+	for frame in audGen(swampy,ain):
+		if len(frameBuffer) >100:
+			temp = reversed(frameBuffer)
+			for f in frameBuffer:
+				yo = temp.pop()
+				video.write(yo)
+			frameBuffer = []
+	
+		frameBuffer.append(frame)
 
 	cv2.destroyAllWindows()
 	video.release()
@@ -264,11 +300,39 @@ if __name__ == '__main__':
 	swampy = initObj(fin,pfn)
 	i = 0
 	movie = []
+	init = True
+	
 
-	# aud = impAudio(ain)
+	for frame in audGen(swampy,ain):
+		flag = True
+		movie.append(frame)
+		if len(movie) > 100:
+			if init:
+				height,width,layers = movie[1].shape
+				fourcc = cv2.VideoWriter_fourcc(*'XVID')
+				video = cv2.VideoWriter('video.avi',fourcc,196.875,(width,height))
 
-	# movie = randGen(swampy)
-	movie = audGen(swampy,ain)
+			for frame in movie:
+				video.write(frame)
+
+			movie = []
+			init = False
+			flag = False
 
 
-	writeThatVideoShit(movie)
+	if flag:
+		if init:
+				height,width,layers = movie[1].shape
+				fourcc = cv2.VideoWriter_fourcc(*'XVID')
+				video = cv2.VideoWriter('video.avi',fourcc,196.875,(width,height))
+
+		for frame in movie:
+			video.write(frame)
+
+		# writeThatVideoShit(movie)
+
+	cv2.destroyAllWindows()
+	video.release()
+
+	# genAudWrite(swampy,ain,fin)
+	# writeThatVideoShit(movie)
